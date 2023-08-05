@@ -3,15 +3,11 @@ import Counter from "./lib/Counter.svelte";
 let isFlutterInAppWebViewReady = false;
 let customEventDetail = null;
 
+let callbackMessage = {};
+
 window.addEventListener("flutterInAppWebViewPlatformReady", function(event) {
   isFlutterInAppWebViewReady = true;
 });
-
-const oauthEvent = {
-  provider: 'GOOGLE',
-};
-
-window.flutter_inappwebview.callHandler('signInInHandler', oauthEvent);
 
 window.addEventListener("customEvent", function({ detail }: CustomEvent) {
   customEventDetail = detail;
@@ -21,34 +17,32 @@ const onPostMessage = () => {
   const postMessage = document.getElementById("postMessage") as HTMLTextAreaElement;
   window.postMessage({ message: postMessage.value });
 }
+
+const onSignInInHandler = () => {
+  window.flutter_inappwebview.callHandler('signInInHandler', {
+    provider: 'GOOGLE',
+  });
+}
 </script>
 
 <main class="flex flex-col">
   <section class="flex flex-col gap-5">
     <h1 class="text-3xl font-bold text-center">
-      Web View Data Viewer
+      Web View Test Viewer
     </h1>
     <div class="card bg-neutral text-neutral-content">
       <div class="card-body items-center text-center">
-        <h2 class="card-title">이벤트 추가</h2>
-        <input type="text" placeholder="이벤트 핸들러명" class="input input-bordered w-full max-w-xs" />
+        <h2 class="card-title">이벤트 목록</h2>
         <div class="card-actions justify-end">
-          <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary">추가</button> 
+          <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary" on:click={onSignInInHandler}>signInInHandler</button> 
         </div>
       </div>
     </div>
-  </section>
-
-  <section>
-    <div class="card w-96 bg-base-100 shadow-xl card-bordered">
-      <div class="card-body">
-        <div class="card-actions justify-end">
-          <button class="btn btn-square btn-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        <h3 class="text-lg">AEvent</h3>
-      </div>
+    <h1 class="text-2xl font-bold text-center">
+      받은 콜백
+    </h1>
+    <div class="mockup-code">
+      <pre data-prefix=">" class="text-warning"><code>{JSON.stringify(callbackMessage)}</code></pre> 
     </div>
   </section>
   
