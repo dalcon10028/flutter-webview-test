@@ -18,8 +18,8 @@ const onPostMessage = () => {
   window.postMessage({ message: postMessage.value });
 }
 
-const onSignInInHandler = () => {
-  window.flutter_inappwebview.callHandler('signInInHandler', {
+const onSignInInHandler = async () => {
+  callbackMessage = await window.flutter_inappwebview.callHandler('signInInHandler', {
     provider: 'GOOGLE',
   });
 }
