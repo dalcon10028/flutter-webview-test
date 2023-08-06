@@ -5,6 +5,16 @@ let customEventDetail = null;
 
 let callbackMessage = {};
 
+enum AuthActionType {
+  SIGN_IN = 'signIn',
+  SIGN_OUT = 'signOut',
+}
+
+enum AuthProvider {
+  GOOGLE = 'google',
+  APPLE = 'apple',
+}
+
 window.addEventListener("flutterInAppWebViewPlatformReady", function(event) {
   isFlutterInAppWebViewReady = true;
 });
@@ -18,9 +28,10 @@ const onPostMessage = () => {
   window.postMessage({ message: postMessage.value });
 }
 
-const onSignInInHandler = async () => {
-  callbackMessage = await window.flutter_inappwebview.callHandler('signInInHandler', {
-    provider: 'GOOGLE',
+const onAuthHandler = async () => {
+  callbackMessage = await window.flutter_inappwebview.callHandler('authHandler', {
+    type: AuthActionType.SIGN_IN,
+    provider: AuthProvider.GOOGLE,
   });
 }
 </script>
@@ -34,7 +45,7 @@ const onSignInInHandler = async () => {
     <div class="items-center text-center card-body">
       <h2 class="card-title">이벤트 목록</h2>
       <div class="justify-end card-actions">
-        <button class="normal-case btn btn-sm btn-primary" on:click={onSignInInHandler}>signInInHandler</button> 
+        <button class="normal-case btn btn-sm btn-primary" on:click={onAuthHandler}>authHandler</button> 
       </div>
     </div>
   </section>
