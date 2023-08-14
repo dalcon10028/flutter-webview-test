@@ -111,7 +111,7 @@ const onAccessUserInfo = async () => {
       <input bind:value={accessToken} type="text" placeholder="AccessToken" class="w-full max-w-xs text-black input input-bordered" />
     </div>
     <div class="justify-center card-actions">
-      <button class="normal-case btn btn-sm btn-primary" on:click={onAccessUserInfo}>authHandler</button> 
+      <button class="normal-case btn btn-sm btn-primary" on:click={onAccessUserInfo}>getProfile</button> 
     </div>
     <div class="mt-3 text-center">
       {#if userInfo.id}
