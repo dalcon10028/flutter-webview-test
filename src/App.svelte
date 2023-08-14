@@ -1,9 +1,22 @@
 <script lang="ts">
 import Counter from "./lib/Counter.svelte";
+import axios, { isAxiosError, type AxiosResponse } from "axios";
+import toast, { Toaster } from 'svelte-french-toast';
+
+interface UserInfo {
+  id: string
+  email: string
+  verified_email: boolean
+  name: string
+  given_name: string
+  picture: string
+  locale: 'ko'
+}
+
 let isFlutterInAppWebViewReady = false;
 let customEventDetail = null;
 
-let callbackMessage = {};
+let callbackMessage: any = {};
 
 enum AuthActionType {
   SIGN_IN = 'signIn',
@@ -33,6 +46,39 @@ const onAuthHandler = async () => {
     type: AuthActionType.SIGN_IN,
     provider: AuthProvider.GOOGLE,
   });
+
+  if (callbackMessage?.accessToken) {
+    accessToken = callbackMessage.accessToken;
+    await onAccessUserInfo();
+  }
+}
+
+let accessToken = '';
+let userInfo: UserInfo = {
+  id: '',
+  email: '',
+  verified_email: false,
+  name: '',
+  given_name: '',
+  picture: 'https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg',
+  locale: 'ko',
+};
+
+const onAccessUserInfo = async () => {
+  try {
+    const { data } = await axios.get<any, AxiosResponse<UserInfo>>(`https://www.googleapis.com/oauth2/v1/userinfo`, {
+      params: {
+        alt: 'json',
+        access_token: accessToken
+      }
+    })
+    userInfo = data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.log(error)
+      toast.error(`[${error.response?.data.error.status}] ${error.response?.data.error.message}`)
+    }
+  }
 }
 </script>
 
@@ -50,27 +96,34 @@ const onAuthHandler = async () => {
     </div>
   </section>
 
-  <h1 class="mb-4 text-2xl font-bold text-center md:mb-8">
+  <h1 class="mb-4 text-xl font-bold text-center md:mb-8">
     받은 콜백
   </h1>
   <div class="mb-6 mockup-code md:mb-10">
     <pre data-prefix=">" class="text-warning"><code>{JSON.stringify(callbackMessage)}</code></pre> 
   </div>
 
-  <!-- 아래 주석처리된 부분은 필요에 따라 추가적인 컴포넌트를 렌더링하는 예시입니다. -->
-  <!-- <div class="mb-4 card md:mb-8">
-    <h3>isFlutterInAppWebViewReady: {isFlutterInAppWebViewReady}</h3>
-    <h3>customEventDetail: {JSON.stringify(customEventDetail, null, 2)}</h3>
-  </div>
-  <div class="mb-4 card md:mb-8">
-    <Counter />
-  </div>
-  <div class="mb-4 card md:mb-8">
-    <h2>post message</h2>
-    <textarea id="postMessage" rows="5" class="w-full p-2 border rounded-lg" placeholder="Enter your message"></textarea>
-    <br />
-    <button class="mt-2 btn btn-primary" on:click={onPostMessage}>
-      post
-    </button>
-  </div> -->
+  <h1 class="mb-4 text-xl font-bold text-center md:mb-8">
+    AccessToken으로 정보 가져오기
+  </h1>
+  <section class="p-5 card bg-neutral text-neutral-content md:mb-8">
+    <div class="items-center text-center card-body">
+      <input bind:value={accessToken} type="text" placeholder="AccessToken" class="w-full max-w-xs text-black input input-bordered" />
+    </div>
+    <div class="justify-center card-actions">
+      <button class="normal-case btn btn-sm btn-primary" on:click={onAccessUserInfo}>authHandler</button> 
+    </div>
+    <div class="mt-3 text-center">
+      {#if userInfo.id}
+        <div class="avatar">
+          <div class="w-24 mask mask-squircle">
+            <img src={userInfo.picture} alt="picture" />
+          </div>
+        </div>
+        <div class="text-sm">{userInfo.name}</div>
+        <div class="text-sm">{userInfo.email}</div>
+      {/if}
+    </div>
+  </section>
+  <Toaster />
 </main>
