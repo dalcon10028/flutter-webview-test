@@ -47,13 +47,12 @@ const onAuthHandler = async () => {
     provider: AuthProvider.GOOGLE,
   });
 
-  if (callbackMessage?.accessToken) {
-    accessToken = callbackMessage.accessToken;
-    await onAccessUserInfo();
+
+  if (callbackMessage.isSuccess) {
+    onAccessUserInfo(callbackMessage.result.accessToken);
   }
 }
 
-let accessToken = '';
 let userInfo: UserInfo = {
   id: '',
   email: '',
@@ -64,7 +63,7 @@ let userInfo: UserInfo = {
   locale: 'ko',
 };
 
-const onAccessUserInfo = async () => {
+const onAccessUserInfo = async (accessToken: string) => {
   try {
     const { data } = await axios.get<any, AxiosResponse<UserInfo>>(`https://www.googleapis.com/oauth2/v1/userinfo`, {
       params: {
